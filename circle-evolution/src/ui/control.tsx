@@ -1,13 +1,19 @@
 import styles from "./control.module.css"
 
-export function ControlButtons() {
+interface Props {
+  genNewGeneration: () => void
+  resetPopulation: () => void
+  startSimulation: () => void
+}
+
+export function ControlButtons({ genNewGeneration, resetPopulation, startSimulation }: Props) {
   return (
     <div className={styles.container}>
-      <button className={`${styles.button} ${styles.outline}`}>Iniciar</button>
+      <button  onClick={startSimulation} className={`${styles.button} ${styles.outline}`}>Iniciar</button>
 
-      <button className={`${styles.button} ${styles.primary}`}>Generación</button>
+      <button onClick={genNewGeneration} className={`${styles.button} ${styles.primary}`}>Generar Generación</button>
 
-      <button className={`${styles.button} ${styles.destructive}`}>Resetear</button>
+      <button onClick={resetPopulation} className={`${styles.button} ${styles.destructive}`}>Resetear</button>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { SimulationBoard } from "../components/simulation-board/simulation-board"
 import { StatsPanel } from "../components/stats-panel/stats-panel"
 import { ControlButtons } from "../ui/control"
@@ -6,7 +6,7 @@ import { ControlButtons } from "../ui/control"
 import styles from "./genetic.module.css"
 
 interface CircleData {
-    id: number
+    id: string
     x: number
     y: number
     fitness: number
@@ -23,9 +23,11 @@ export default function GeneticAlgorithmScreen() {
 
     const [populations, setPopulations] = useState<CircleData[]>([])
     const [quantityGeneration, setQuantityGeneration] = useState(0)
+    const [desiredGenerations, setDesiredGenerations] = useState(0);
+    const [runningSimulation, setRunningSimulation] = useState(false);
 
     const evaluateTheBest = (ind: CircleData, target: { x: number; y: number }) => {
-        
+
         const distanceX = ind.x - target.x
         const distanceY = ind.y - target.y
         const distanceOfTarget = Math.sqrt(distanceX * distanceX + distanceY * distanceY)
@@ -33,6 +35,11 @@ export default function GeneticAlgorithmScreen() {
         return 1 / (distanceOfTarget + 1)
     }
     const selectParents = () => {
+
+        if (populations.length < 2) {
+            console.warn("No hay suficientes individuos para elegir padres");
+            return [];
+        }
 
         const population = [...populations]
         const fitnessEvaluated = population.map((ind) => {
@@ -52,7 +59,7 @@ export default function GeneticAlgorithmScreen() {
 
         for (let i = 0; i < POP_SIZE; i++) {
             population.push({
-                id: i,
+                id: `${i}`,
                 x: Math.floor(Math.random() * CANVAS_WIDTH),
                 y: Math.floor(Math.random() * CANVAS_HEIGHT),
                 fitness: 0
@@ -64,22 +71,28 @@ export default function GeneticAlgorithmScreen() {
     }
 
     const genNewPopulation = () => {
+      
+        const parents = selectParents()
+
+        if (parents.length < 2) {
+            console.warn("No se pueden generar hijos: no hay padres suficientes");
+            return;
+        }
         
         const newPopulation = []
-        const parents = selectParents()
 
         for (let i = 0; i < POP_SIZE; i++) {
             const parent1 = parents[0]
             const parent2 = parents[1]
-            
-            let childDistanceX = (parent1.x + parent2.x) / 2
-            let childDistanceY = (parent1.y + parent2.y) / 2
+
+            let childDistanceX = (parent1?.x + parent2?.x) / 2
+            let childDistanceY = (parent1?.y + parent2?.y) / 2
 
             childDistanceX = childDistanceX + (Math.random() * 40 - 20)
-            childDistanceY = childDistanceY + (Math.random() * 40 - 20) 
+            childDistanceY = childDistanceY + (Math.random() * 40 - 20)
 
             newPopulation.push({
-                id: i,
+                id: `${Date.now()}-${i}`,
                 x: Math.floor(childDistanceX),
                 y: Math.floor(childDistanceY),
                 fitness: 0
@@ -91,6 +104,30 @@ export default function GeneticAlgorithmScreen() {
         setQuantityGeneration(prev => prev + 1)
 
     }
+
+    useEffect(() => {
+
+        if (!runningSimulation) return;
+
+        let count = 1;
+
+        const interval = setInterval(() => {
+            genNewPopulation();
+            count++;
+
+            if (count >= desiredGenerations) {
+                clearInterval(interval);
+                setRunningSimulation(false);
+            }
+        }, 800);
+
+        return () => clearInterval(interval);
+
+    }, [runningSimulation])
+
+    useEffect(() => {
+        genPopulation()
+    }, [])
 
     return (
         <div className={styles.container}>
@@ -105,8 +142,11 @@ export default function GeneticAlgorithmScreen() {
             </div>
 
             <ControlButtons
-                startSimulation={genPopulation}
-                genNewGeneration={genNewPopulation}
+                startSimulation={() => {
+                    setRunningSimulation(true)
+                }}
+                desiredGenerations={desiredGenerations}
+                setDesiredGenerations={setDesiredGenerations}
                 resetPopulation={genPopulation}
             />
         </div>

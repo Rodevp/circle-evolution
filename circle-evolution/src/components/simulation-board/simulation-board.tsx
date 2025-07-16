@@ -4,7 +4,7 @@ import { Target } from "../target/target"
 import styles from "./board.module.css"
 
 interface CircleData {
-  id: number
+  id: string
   x: number
   y: number
 }

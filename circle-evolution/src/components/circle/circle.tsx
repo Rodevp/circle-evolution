@@ -1,6 +1,6 @@
 import styles from "./circle.module.css"
 interface CircleProps {
-  id: number
+  id: string
   x: number
   y: number
   radius?: number

@@ -1,18 +1,19 @@
 import styles from "./control.module.css"
 
 interface Props {
-  genNewGeneration: () => void
   resetPopulation: () => void
   startSimulation: () => void
+  desiredGenerations: any
+  setDesiredGenerations: React.Dispatch<React.SetStateAction<any>>
 }
 
-export function ControlButtons({ genNewGeneration, resetPopulation, startSimulation }: Props) {
+export function ControlButtons({ resetPopulation, startSimulation, desiredGenerations, setDesiredGenerations }: Props) {
   return (
     <div className={styles.container}>
-      <button  onClick={startSimulation} className={`${styles.button} ${styles.outline}`}>Iniciar</button>
-
-      <button onClick={genNewGeneration} className={`${styles.button} ${styles.primary}`}>Generar Generación</button>
-
+      <div className={styles.containerStart}>
+        <input type="number" value={desiredGenerations} onChange={(e) => setDesiredGenerations(e.target.value)} />
+        <button  onClick={startSimulation} className={`${styles.button} ${styles.primary}`}>Iniciar</button>
+      </div>
       <button onClick={resetPopulation} className={`${styles.button} ${styles.destructive}`}>Resetear</button>
     </div>
   )

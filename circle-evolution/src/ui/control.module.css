@@ -49,3 +49,9 @@
 .destructive:hover {
   background-color: #dc2626;
 }
+
+.containerStart {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
